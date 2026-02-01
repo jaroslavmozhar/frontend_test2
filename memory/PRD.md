@@ -94,3 +94,47 @@
 - [ ] Експорт даних (JSON/CSV)
 - [ ] PWA для офлайн роботи
 - [ ] Пуш-нотифікації про нові серіали
+
+---
+
+## ВЕРСІЯ 6.0 - BACKEND + СИНХРОНІЗАЦІЯ (1 лютого 2025)
+
+### ✅ Backend API (FastAPI + MongoDB)
+- **Архітектура**: RESTful API з окремими endpoints для архіву та списку бажань
+- **База даних**: MongoDB з двома колекціями (series_archive, series_wishlist)
+- **API Endpoints**:
+  - `GET/POST /api/series` - архів серіалів
+  - `PUT/DELETE /api/series/{id}` - оновлення/видалення
+  - `GET/POST /api/wishlist` - список бажань
+  - `PUT/DELETE /api/wishlist/{id}` - оновлення/видалення
+
+### ✅ Синхронізація даних
+- **Онлайн режим**: Всі зміни автоматично зберігаються в MongoDB через API
+- **Офлайн fallback**: LocalStorage як кеш при недоступності API
+- **Optimistic updates**: Миттєве оновлення UI з подальшим збереженням в API
+- **Індикатори стану**: 
+  - 🔴 Червоний банер: LocalStorage недоступний (приватний режим)
+  - 🟠 Помаранчевий банер: Офлайн режим (API недоступний)
+
+### ✅ Міжбраузерна синхронізація
+- Дані зберігаються в центральній MongoDB базі
+- Всі браузери та пристрої мають доступ до однієї бази
+- Зміни з одного пристрою відображаються на інших після перезавантаження
+
+### Технічні файли
+```
+Backend:
+- /app/backend/models/series.py - Pydantic моделі
+- /app/backend/routes/series.py - API endpoints
+- /app/backend/API_SPEC.md - документація API
+
+Frontend:
+- /app/frontend/src/services/api.js - API клієнт
+- /app/frontend/src/pages/LandingPage.jsx - інтеграція з API
+```
+
+### Поведінка системи
+1. **Завантаження**: Спроба завантажити з API → Fallback до LocalStorage → Fallback до mock даних
+2. **Збереження**: API + LocalStorage (як кеш)
+3. **Помилки**: Graceful degradation до локального режиму
+
