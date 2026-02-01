@@ -26,16 +26,12 @@ const safeLocalStorageSave = (key, value) => {
   try {
     if (isLocalStorageAvailable()) {
       localStorage.setItem(key, value);
-      console.log(`💾 Saved ${key}:`, JSON.parse(value).length, 'items');
       return true;
-    } else {
-      console.warn('⚠️ LocalStorage not available (private mode?)');
-      return false;
     }
   } catch (e) {
     console.error('❌ Failed to save to localStorage:', e);
-    return false;
   }
+  return false;
 };
 
 // Helper function to safely load from localStorage
