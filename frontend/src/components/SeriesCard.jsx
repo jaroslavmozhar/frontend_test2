@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const SeriesCard = ({ series, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localSeries, setLocalSeries] = useState(series);
+  const [hasUnsavedNotes, setHasUnsavedNotes] = useState(false);
 
   const handleWatchedChange = () => {
     const updated = { ...localSeries, watched: !localSeries.watched };
@@ -19,11 +20,23 @@ const SeriesCard = ({ series, onUpdate, onDelete }) => {
   const handleNotesChange = (e) => {
     const updated = { ...localSeries, notes: e.target.value };
     setLocalSeries(updated);
+    setHasUnsavedNotes(true);
   };
 
-  const handleNotesBlur = () => {
+  const handleSaveNotes = () => {
     onUpdate(localSeries);
+    setHasUnsavedNotes(false);
     setIsEditing(false);
+  };
+
+  const handleClearNotes = () => {
+    if (window.confirm('Видалити всі нотатки?')) {
+      const updated = { ...localSeries, notes: '' };
+      setLocalSeries(updated);
+      onUpdate(updated);
+      setHasUnsavedNotes(false);
+      setIsEditing(false);
+    }
   };
 
   const handleDelete = () => {
@@ -85,10 +98,35 @@ const SeriesCard = ({ series, onUpdate, onDelete }) => {
           placeholder="Додайте свої нотатки про розслідування..."
           value={localSeries.notes}
           onChange={handleNotesChange}
-          onBlur={handleNotesBlur}
           onFocus={() => setIsEditing(true)}
           aria-label="Нотатки про серіал"
         />
+        
+        {(isEditing || localSeries.notes) && (
+          <div className="notes-actions">
+            <button 
+              className="notes-btn save-notes-btn"
+              onClick={handleSaveNotes}
+              disabled={!hasUnsavedNotes}
+            >
+              💾 Зберегти нотатки
+            </button>
+            {localSeries.notes && (
+              <button 
+                className="notes-btn clear-notes-btn"
+                onClick={handleClearNotes}
+              >
+                🗑️ Очистити
+              </button>
+            )}
+          </div>
+        )}
+        
+        {hasUnsavedNotes && (
+          <div className="unsaved-indicator">
+            ⚠ Незбережені зміни
+          </div>
+        )}
       </div>
     </div>
   );
