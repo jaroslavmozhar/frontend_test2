@@ -8,6 +8,48 @@ import '../styles/crime-theme.css';
 const STORAGE_KEY = 'crime_series_archive';
 const WISHLIST_KEY = 'crime_series_wishlist';
 
+// Helper function to check if localStorage is available (Safari private mode issue)
+const isLocalStorageAvailable = () => {
+  try {
+    const test = '__storage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Helper function to safely save to localStorage
+const safeLocalStorageSave = (key, value) => {
+  try {
+    if (isLocalStorageAvailable()) {
+      localStorage.setItem(key, value);
+      console.log(`💾 Saved ${key}:`, JSON.parse(value).length, 'items');
+      return true;
+    } else {
+      console.warn('⚠️ LocalStorage not available (private mode?)');
+      return false;
+    }
+  } catch (e) {
+    console.error('❌ Failed to save to localStorage:', e);
+    return false;
+  }
+};
+
+// Helper function to safely load from localStorage
+const safeLocalStorageLoad = (key) => {
+  try {
+    if (isLocalStorageAvailable()) {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    }
+  } catch (e) {
+    console.error('❌ Failed to load from localStorage:', e);
+  }
+  return null;
+};
+
 // Helper function to migrate old note format to new format
 const migrateNotes = (notes) => {
   if (!notes) return [];
@@ -27,20 +69,26 @@ const LandingPage = () => {
   const [wishlist, setWishlist] = useState([]);
   const [activeTab, setActiveTab] = useState('archive');
   const [isInitialized, setIsInitialized] = useState(false);
+  const [storageWarning, setStorageWarning] = useState(false);
 
   // Load data from LocalStorage or use mock data (only on mount)
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const storedWishlist = localStorage.getItem(WISHLIST_KEY);
-    
     console.log('🔄 Loading data from localStorage...');
+    
+    // Check localStorage availability
+    if (!isLocalStorageAvailable()) {
+      setStorageWarning(true);
+      console.warn('⚠️ LocalStorage not available - using session data only');
+    }
+    
+    const stored = safeLocalStorageLoad(STORAGE_KEY);
+    const storedWishlist = safeLocalStorageLoad(WISHLIST_KEY);
     
     if (stored) {
       try {
-        const parsedData = JSON.parse(stored);
-        console.log('📦 Loaded archive:', parsedData.length, 'items');
+        console.log('📦 Loaded archive:', stored.length, 'items');
         // Migrate old format to new format
-        const migratedData = parsedData.map(item => ({
+        const migratedData = stored.map(item => ({
           ...item,
           notes: migrateNotes(item.notes),
           rating: item.rating !== undefined ? item.rating : 0
@@ -66,9 +114,8 @@ const LandingPage = () => {
 
     if (storedWishlist) {
       try {
-        const parsedWishlist = JSON.parse(storedWishlist);
-        console.log('📦 Loaded wishlist:', parsedWishlist.length, 'items');
-        const migratedWishlist = parsedWishlist.map(item => ({
+        console.log('📦 Loaded wishlist:', storedWishlist.length, 'items');
+        const migratedWishlist = storedWishlist.map(item => ({
           ...item,
           notes: migrateNotes(item.notes),
           rating: item.rating !== undefined ? item.rating : 0
@@ -88,16 +135,14 @@ const LandingPage = () => {
   // Save to LocalStorage whenever series changes (but not on initial load)
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
-      console.log('💾 Archive saved:', series.length, 'items');
+      safeLocalStorageSave(STORAGE_KEY, JSON.stringify(series));
     }
   }, [series, isInitialized]);
 
   // Save wishlist to LocalStorage (but not on initial load)
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
-      console.log('💾 Wishlist saved:', wishlist.length, 'items');
+      safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(wishlist));
     }
   }, [wishlist, isInitialized]);
 
