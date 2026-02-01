@@ -350,6 +350,18 @@
   animation: pulse-music 1s ease-in-out infinite;
 }
 
+.player-note {
+  margin-top: 10px;
+  padding: 8px;
+  background: rgba(255, 217, 0, 0.1);
+  border: 1px solid rgba(255, 217, 0, 0.3);
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: var(--crime-gray-text);
+  text-align: center;
+  font-style: italic;
+}
+
 /* Mobile adjustments for audio player */
 @media (max-width: 768px) {
   .audio-player {
