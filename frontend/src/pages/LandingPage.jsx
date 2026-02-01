@@ -26,20 +26,24 @@ const LandingPage = () => {
   const [series, setSeries] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [activeTab, setActiveTab] = useState('archive');
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load data from LocalStorage or use mock data
+  // Load data from LocalStorage or use mock data (only on mount)
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     const storedWishlist = localStorage.getItem(WISHLIST_KEY);
     
+    console.log('🔄 Loading data from localStorage...');
+    
     if (stored) {
       try {
         const parsedData = JSON.parse(stored);
+        console.log('📦 Loaded archive:', parsedData.length, 'items');
         // Migrate old format to new format
         const migratedData = parsedData.map(item => ({
           ...item,
           notes: migrateNotes(item.notes),
-          rating: item.rating || 0
+          rating: item.rating !== undefined ? item.rating : 0
         }));
         setSeries(migratedData);
       } catch (error) {
@@ -52,6 +56,7 @@ const LandingPage = () => {
       }
     } else {
       // No data in storage, use mock data
+      console.log('📦 No data found, using mock data');
       const migratedMock = mockSeries.map(item => ({
         ...item,
         notes: migrateNotes(item.notes)
@@ -62,10 +67,11 @@ const LandingPage = () => {
     if (storedWishlist) {
       try {
         const parsedWishlist = JSON.parse(storedWishlist);
+        console.log('📦 Loaded wishlist:', parsedWishlist.length, 'items');
         const migratedWishlist = parsedWishlist.map(item => ({
           ...item,
           notes: migrateNotes(item.notes),
-          rating: item.rating || 0
+          rating: item.rating !== undefined ? item.rating : 0
         }));
         setWishlist(migratedWishlist);
       } catch (error) {
@@ -75,19 +81,25 @@ const LandingPage = () => {
     } else {
       setWishlist([]);
     }
-  }, []);
+    
+    setIsInitialized(true);
+  }, []); // Empty dependency array - run only on mount
 
-  // Save to LocalStorage whenever series changes
+  // Save to LocalStorage whenever series changes (but not on initial load)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
-    console.log('✅ Archive saved:', series.length, 'items');
-  }, [series]);
+    if (isInitialized) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
+      console.log('💾 Archive saved:', series.length, 'items');
+    }
+  }, [series, isInitialized]);
 
-  // Save wishlist to LocalStorage
+  // Save wishlist to LocalStorage (but not on initial load)
   useEffect(() => {
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
-    console.log('✅ Wishlist saved:', wishlist.length, 'items');
-  }, [wishlist]);
+    if (isInitialized) {
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+      console.log('💾 Wishlist saved:', wishlist.length, 'items');
+    }
+  }, [wishlist, isInitialized]);
 
   const handleAddSeries = (newSeries) => {
     const seriesWithNotes = {
