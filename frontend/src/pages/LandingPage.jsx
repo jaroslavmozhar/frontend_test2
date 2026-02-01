@@ -67,6 +67,7 @@ const LandingPage = () => {
   const [activeTab, setActiveTab] = useState('archive');
   const [isInitialized, setIsInitialized] = useState(false);
   const [storageWarning, setStorageWarning] = useState(false);
+  const [useOfflineMode, setUseOfflineMode] = useState(false);
 
   // Load data from LocalStorage or use mock data (only on mount)
   useEffect(() => {
