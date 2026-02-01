@@ -68,24 +68,133 @@
   box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
 }
 
-/* Investigation Header */
+/* Investigation Header - Mystical Style */
 .investigators-header {
   text-align: center;
-  padding: 40px 20px 20px;
+  padding: 60px 20px 40px;
   position: relative;
   z-index: 2;
-  background: linear-gradient(180deg, var(--crime-overlay) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, transparent 100%);
+  border-bottom: 2px solid rgba(255, 51, 51, 0.2);
+}
+
+.investigators-container {
+  position: relative;
+  display: inline-block;
+  padding: 30px 60px;
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid var(--crime-string-red);
+  box-shadow: 
+    0 0 30px rgba(255, 51, 51, 0.3),
+    inset 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.investigators-container::before,
+.investigators-container::after {
+  content: '⚠';
+  position: absolute;
+  font-size: 40px;
+  color: var(--crime-tape-yellow);
+  animation: pulse 3s ease-in-out infinite;
+  text-shadow: 0 0 20px rgba(255, 217, 0, 0.8);
+}
+
+.investigators-container::before {
+  top: -20px;
+  left: -20px;
+}
+
+.investigators-container::after {
+  bottom: -20px;
+  right: -20px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+.investigators-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 51, 51, 0.15) 0%, transparent 70%);
+  animation: glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); }
 }
 
 .investigators-title {
-  font-family: 'Courier New', 'KodeMono', monospace;
-  font-size: 24px;
-  color: var(--crime-tape-yellow);
-  text-transform: uppercase;
-  letter-spacing: 3px;
   margin: 0;
-  text-shadow: 0 0 20px rgba(255, 217, 0, 0.4);
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.investigators-label {
+  font-family: 'Courier New', 'KodeMono', monospace;
+  font-size: 16px;
+  color: var(--crime-gray-text);
+  letter-spacing: 5px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.investigators-names {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-family: 'KodeMono', monospace;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--crime-white);
+  letter-spacing: 4px;
+}
+
+.investigator-name {
+  position: relative;
+  color: var(--crime-tape-yellow);
+  text-shadow: 
+    0 0 10px rgba(255, 217, 0, 0.5),
+    0 0 20px rgba(255, 217, 0, 0.3),
+    2px 2px 0 rgba(0, 0, 0, 0.5);
+  animation: flicker 5s ease-in-out infinite;
+}
+
+.investigator-name:nth-child(3) {
+  animation-delay: 2.5s;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+  51% { opacity: 1; }
+  52% { opacity: 0.97; }
+  53%, 100% { opacity: 1; }
+}
+
+.investigators-separator {
+  color: var(--crime-evidence-red);
+  font-size: 32px;
+  text-shadow: 0 0 15px rgba(255, 51, 51, 0.8);
+}
+
+.investigators-subtitle {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--crime-gray-text);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  opacity: 0.7;
 }
 
 /* Main Archive Title */
@@ -217,7 +326,119 @@
   z-index: 2;
 }
 
-/* Case File Card */
+/* Delete Button */
+.delete-case-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: var(--crime-black);
+  border: 1px solid var(--crime-string-red);
+  color: var(--crime-evidence-red);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  line-height: 1;
+  padding: 0;
+}
+
+.delete-case-btn:hover {
+  background: var(--crime-evidence-red);
+  color: var(--crime-white);
+  transform: rotate(90deg);
+  box-shadow: 0 0 15px rgba(255, 51, 51, 0.6);
+}
+
+.delete-case-btn:active {
+  transform: rotate(90deg) scale(0.9);
+}
+
+/* Evidence Tabs Navigation */
+.evidence-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 40px auto 30px;
+  max-width: 900px;
+  position: relative;
+  z-index: 2;
+}
+
+.evidence-tab {
+  flex: 1;
+  background: rgba(26, 26, 26, 0.6);
+  border: 2px solid rgba(255, 51, 51, 0.3);
+  color: var(--crime-gray-text);
+  padding: 18px 24px;
+  font-family: 'KodeMono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.evidence-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--crime-evidence-red);
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+}
+
+.evidence-tab:hover {
+  border-color: rgba(255, 51, 51, 0.6);
+  color: var(--crime-white);
+  background: rgba(26, 26, 26, 0.9);
+}
+
+.evidence-tab.active {
+  background: rgba(139, 0, 0, 0.2);
+  border-color: var(--crime-evidence-red);
+  color: var(--crime-tape-yellow);
+  box-shadow: 
+    0 0 20px rgba(255, 51, 51, 0.3),
+    inset 0 0 20px rgba(139, 0, 0, 0.3);
+}
+
+.evidence-tab.active::before {
+  transform: scaleX(1);
+}
+
+.tab-icon {
+  font-size: 20px;
+}
+
+.tab-count {
+  background: var(--crime-string-red);
+  color: var(--crime-white);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.evidence-tab.active .tab-count {
+  background: var(--crime-tape-yellow);
+  color: var(--crime-black);
+}
 .case-file {
   background: var(--crime-dark-gray);
   border: 2px solid var(--crime-string-red);
