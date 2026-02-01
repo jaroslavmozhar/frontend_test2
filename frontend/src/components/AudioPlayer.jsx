@@ -7,26 +7,26 @@ const AudioPlayer = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [volume, setVolume] = useState(0.3);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [error, setError] = useState(null);
   const audioRef = useRef(null);
 
-  // Детективні треки (placeholder URLs - будуть працювати як приклад)
-  // В реальному проєкті треба додати реальні файли в /public/audio/
+  // Безкоштовні детективні треки з різних джерел
   const tracks = [
     {
-      title: 'Noir Investigation',
-      artist: 'Crime Scene',
-      // URL може бути замінений на реальний файл в /public/audio/track1.mp3
-      url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_2c7ba86c6a.mp3'
+      title: 'Noir Detective',
+      artist: 'Mystery Theme',
+      // Free music from Pixabay
+      url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_2c7ba86c6a.mp3?filename=detective-115492.mp3'
     },
     {
-      title: 'Detective Theme',
-      artist: 'Mystery Hour',
-      url: 'https://cdn.pixabay.com/audio/2022/05/13/audio_2f2c1a6d7a.mp3'
+      title: 'Crime Scene',
+      artist: 'Dark Investigation',
+      url: 'https://cdn.pixabay.com/download/audio/2022/05/13/audio_2f2c1a6d7a.mp3?filename=dark-mystery-trailer-126365.mp3'
     },
     {
-      title: 'Dark Evidence',
-      artist: 'Crime Lab',
-      url: 'https://cdn.pixabay.com/audio/2022/03/24/audio_c8dbf5116a.mp3'
+      title: 'Night Watch',
+      artist: 'Noir Atmosphere',
+      url: 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_c8dbf5116a.mp3?filename=mysterious-cinematic-trailer-135848.mp3'
     }
   ];
 
@@ -35,13 +35,38 @@ const AudioPlayer = () => {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
+      
+      // Add error handler
+      audioRef.current.onerror = (e) => {
+        console.error('Audio error:', e);
+        setError('Помилка завантаження треку');
+        setIsPlaying(false);
+      };
+      
+      // Add load handler
+      audioRef.current.oncanplay = () => {
+        setError(null);
+        console.log('Audio ready to play');
+      };
     }
   }, [volume]);
 
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
-        audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log('✅ Audio playing');
+              setError(null);
+            })
+            .catch(e => {
+              console.error('❌ Play failed:', e);
+              setError('Не вдалося відтворити. Клікніть ще раз.');
+              setIsPlaying(false);
+            });
+        }
       } else {
         audioRef.current.pause();
       }
@@ -60,11 +85,19 @@ const AudioPlayer = () => {
   };
 
   const nextTrack = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+    setIsPlaying(false);
+    setTimeout(() => {
+      setCurrentTrackIndex((prev) => (prev + 1) % tracks.length);
+      setIsPlaying(true);
+    }, 100);
   };
 
   const prevTrack = () => {
-    setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
+    setIsPlaying(false);
+    setTimeout(() => {
+      setCurrentTrackIndex((prev) => (prev - 1 + tracks.length) % tracks.length);
+      setIsPlaying(true);
+    }, 100);
   };
 
   const handleTrackEnd = () => {
@@ -72,8 +105,11 @@ const AudioPlayer = () => {
   };
 
   const selectTrack = (index) => {
-    setCurrentTrackIndex(index);
-    setIsPlaying(true);
+    setIsPlaying(false);
+    setTimeout(() => {
+      setCurrentTrackIndex(index);
+      setIsPlaying(true);
+    }, 100);
   };
 
   return (
@@ -82,22 +118,23 @@ const AudioPlayer = () => {
         ref={audioRef}
         src={currentTrack.url}
         onEnded={handleTrackEnd}
-        loop={false}
+        preload="auto"
       />
 
       {/* Compact Player */}
-      <div className="player-compact" onClick={() => setIsExpanded(!isExpanded)}>
+      <div 
+        className="player-compact" 
+        onClick={() => setIsExpanded(!isExpanded)}
+        title="Музика розслідування"
+      >
         <span className="player-icon">🎵</span>
-        <span className="player-title">
-          {isPlaying ? '♫ ' : ''}Детективна музика
-        </span>
       </div>
 
       {/* Expanded Player */}
       {isExpanded && (
         <div className="player-expanded" onClick={(e) => e.stopPropagation()}>
           <div className="player-header">
-            <h3 className="player-heading">МУЗИКА РОЗСЛІДУВАННЯ</h3>
+            <h3 className="player-heading">МУЗИКА</h3>
             <button 
               className="close-player-btn"
               onClick={() => setIsExpanded(false)}
@@ -106,6 +143,12 @@ const AudioPlayer = () => {
               ✕
             </button>
           </div>
+
+          {error && (
+            <div className="player-error">
+              ⚠️ {error}
+            </div>
+          )}
 
           <div className="current-track-info">
             <div className="track-title">{currentTrack.title}</div>
@@ -119,7 +162,7 @@ const AudioPlayer = () => {
               onClick={prevTrack}
               aria-label="Попередній трек"
             >
-              <SkipBack size={20} />
+              <SkipBack size={16} />
             </button>
 
             <button 
@@ -127,7 +170,7 @@ const AudioPlayer = () => {
               onClick={togglePlay}
               aria-label={isPlaying ? 'Пауза' : 'Відтворити'}
             >
-              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+              {isPlaying ? <Pause size={20} /> : <Play size={20} />}
             </button>
 
             <button 
@@ -135,7 +178,7 @@ const AudioPlayer = () => {
               onClick={nextTrack}
               aria-label="Наступний трек"
             >
-              <SkipForward size={20} />
+              <SkipForward size={16} />
             </button>
 
             <button 
@@ -143,13 +186,13 @@ const AudioPlayer = () => {
               onClick={toggleMute}
               aria-label={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
             >
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+              {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
             </button>
           </div>
 
           {/* Volume Control */}
           <div className="volume-control">
-            <Volume2 size={16} />
+            <Volume2 size={14} />
             <input
               type="range"
               min="0"
