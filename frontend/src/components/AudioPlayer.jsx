@@ -7,78 +7,106 @@ const AudioPlayer = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [volume, setVolume] = useState(0.3);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [error, setError] = useState(null);
-  const audioRef = useRef(null);
+  const audioContextRef = useRef(null);
+  const oscillatorRef = useRef(null);
+  const gainNodeRef = useRef(null);
 
-  // Безкоштовні детективні треки - використовуємо alternative sources
   const tracks = [
     {
       title: 'Noir Detective',
       artist: 'Mystery Theme',
-      // Backup: FreePD or Internet Archive public domain
-      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Fig_Leaf_Rag.mp3'
+      frequency: 220, // A3 - low mysterious tone
+      type: 'sine'
     },
     {
       title: 'Crime Scene',
       artist: 'Dark Investigation',
-      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kevin_MacLeod/Classical_Sampler/Kevin_MacLeod_-_Danse_Macabre.mp3'
+      frequency: 110, // A2 - deep dark tone
+      type: 'sawtooth'
     },
     {
       title: 'Night Watch',
       artist: 'Noir Atmosphere',
-      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Volatile_Reaction.mp3'
+      frequency: 165, // E3 - atmospheric tone
+      type: 'triangle'
     }
   ];
 
   const currentTrack = tracks[currentTrackIndex];
 
+  // Initialize Web Audio API
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-      
-      // Add error handler
-      audioRef.current.onerror = (e) => {
-        console.error('Audio error:', e);
-        setError('Помилка завантаження треку');
-        setIsPlaying(false);
-      };
-      
-      // Add load handler
-      audioRef.current.oncanplay = () => {
-        setError(null);
-        console.log('Audio ready to play');
-      };
+    if (!audioContextRef.current) {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
-  }, [volume]);
+    return () => {
+      stopAudio();
+    };
+  }, []);
+
+  // Update volume
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  const stopAudio = () => {
+    if (oscillatorRef.current) {
+      try {
+        oscillatorRef.current.stop();
+        oscillatorRef.current.disconnect();
+      } catch (e) {
+        // Already stopped
+      }
+      oscillatorRef.current = null;
+    }
+  };
+
+  const playAudio = () => {
+    stopAudio();
+
+    const audioContext = audioContextRef.current;
+    if (!audioContext) return;
+
+    // Resume audio context if suspended (browser autoplay policy)
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+
+    // Create oscillator for tone
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.type = currentTrack.type;
+    oscillator.frequency.setValueAtTime(currentTrack.frequency, audioContext.currentTime);
+
+    // Create subtle vibrato effect
+    const vibrato = audioContext.createOscillator();
+    const vibratoGain = audioContext.createGain();
+    vibrato.frequency.value = 5;
+    vibratoGain.gain.value = 5;
+    vibrato.connect(vibratoGain);
+    vibratoGain.connect(oscillator.frequency);
+    vibrato.start();
+
+    gainNode.gain.value = isMuted ? 0 : volume;
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillatorRef.current = oscillator;
+    gainNodeRef.current = gainNode;
+
+    console.log('✅ Audio playing - generated tone');
+  };
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
     if (isPlaying) {
-      // Reset audio to beginning if switching tracks
-      audio.currentTime = 0;
-      
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('✅ Audio playing');
-            setError(null);
-          })
-          .catch(e => {
-            console.error('❌ Play failed:', e);
-            // Don't show error on user interaction issues
-            if (e.name === 'NotAllowedError') {
-              setError('Клікніть Play для відтворення');
-            } else {
-              setError('Помилка треку. Спробуйте інший.');
-            }
-            setIsPlaying(false);
-          });
-      }
+      playAudio();
     } else {
-      audio.pause();
+      stopAudio();
     }
   }, [isPlaying, currentTrackIndex]);
 
@@ -87,10 +115,7 @@ const AudioPlayer = () => {
   };
 
   const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+    setIsMuted(!isMuted);
   };
 
   const nextTrack = () => {
@@ -109,10 +134,6 @@ const AudioPlayer = () => {
     }, 100);
   };
 
-  const handleTrackEnd = () => {
-    nextTrack();
-  };
-
   const selectTrack = (index) => {
     setIsPlaying(false);
     setTimeout(() => {
@@ -123,13 +144,6 @@ const AudioPlayer = () => {
 
   return (
     <div className={`audio-player ${isExpanded ? 'expanded' : ''}`}>
-      <audio
-        ref={audioRef}
-        src={currentTrack.url}
-        onEnded={handleTrackEnd}
-        preload="auto"
-      />
-
       {/* Compact Player */}
       <div 
         className="player-compact" 
@@ -152,12 +166,6 @@ const AudioPlayer = () => {
               ✕
             </button>
           </div>
-
-          {error && (
-            <div className="player-error">
-              ⚠️ {error}
-            </div>
-          )}
 
           <div className="current-track-info">
             <div className="track-title">{currentTrack.title}</div>
@@ -234,6 +242,10 @@ const AudioPlayer = () => {
                 )}
               </div>
             ))}
+          </div>
+
+          <div className="player-note">
+            🎼 Атмосферні тони для настрою
           </div>
         </div>
       )}
