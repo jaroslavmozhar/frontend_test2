@@ -69,66 +69,82 @@ const LandingPage = () => {
   const [storageWarning, setStorageWarning] = useState(false);
   const [useOfflineMode, setUseOfflineMode] = useState(false);
 
-  // Load data from LocalStorage or use mock data (only on mount)
+  // Load data from API or LocalStorage on mount
   useEffect(() => {
-    console.log('🔄 Loading data from localStorage...');
-    
-    // Check localStorage availability
-    if (!isLocalStorageAvailable()) {
-      setStorageWarning(true);
-      console.warn('⚠️ LocalStorage not available - using session data only');
-    }
-    
-    const stored = safeLocalStorageLoad(STORAGE_KEY);
-    const storedWishlist = safeLocalStorageLoad(WISHLIST_KEY);
-    
-    if (stored) {
-      try {
-        console.log('📦 Loaded archive:', stored.length, 'items');
-        // Migrate old format to new format
-        const migratedData = stored.map(item => ({
-          ...item,
-          notes: migrateNotes(item.notes),
-          rating: item.rating !== undefined ? item.rating : 0
-        }));
-        setSeries(migratedData);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        const migratedMock = mockSeries.map(item => ({
-          ...item,
-          notes: migrateNotes(item.notes)
-        }));
-        setSeries(migratedMock);
+    const loadData = async () => {
+      console.log('🔄 Loading data...');
+      
+      // Check localStorage availability
+      if (!isLocalStorageAvailable()) {
+        setStorageWarning(true);
+        console.warn('⚠️ LocalStorage not available');
       }
-    } else {
-      // No data in storage, use mock data
-      console.log('📦 No data found, using mock data');
-      const migratedMock = mockSeries.map(item => ({
-        ...item,
-        notes: migrateNotes(item.notes)
-      }));
-      setSeries(migratedMock);
-    }
 
-    if (storedWishlist) {
-      try {
-        console.log('📦 Loaded wishlist:', storedWishlist.length, 'items');
-        const migratedWishlist = storedWishlist.map(item => ({
+      // Try to load from API first
+      const seriesResult = await seriesAPI.getAllSeries();
+      const wishlistResult = await seriesAPI.getWishlist();
+
+      if (seriesResult.success && wishlistResult.success) {
+        // API is available - use API data
+        console.log('✅ Loaded from API');
+        const migratedSeries = seriesResult.data.map(item => ({
           ...item,
           notes: migrateNotes(item.notes),
           rating: item.rating !== undefined ? item.rating : 0
         }));
+        const migratedWishlist = wishlistResult.data.map(item => ({
+          ...item,
+          notes: migrateNotes(item.notes),
+          rating: item.rating !== undefined ? item.rating : 0
+        }));
+
+        setSeries(migratedSeries);
         setWishlist(migratedWishlist);
-      } catch (error) {
-        console.error('Error loading wishlist:', error);
-        setWishlist([]);
+        
+        // Save to localStorage as cache
+        safeLocalStorageSave(STORAGE_KEY, JSON.stringify(migratedSeries));
+        safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(migratedWishlist));
+        setUseOfflineMode(false);
+      } else {
+        // API not available - fallback to localStorage
+        console.warn('⚠️ API not available, using LocalStorage');
+        setUseOfflineMode(true);
+        
+        const storedSeries = safeLocalStorageLoad(STORAGE_KEY);
+        const storedWishlist = safeLocalStorageLoad(WISHLIST_KEY);
+
+        if (storedSeries) {
+          const migrated = storedSeries.map(item => ({
+            ...item,
+            notes: migrateNotes(item.notes),
+            rating: item.rating !== undefined ? item.rating : 0
+          }));
+          setSeries(migrated);
+        } else {
+          const migratedMock = mockSeries.map(item => ({
+            ...item,
+            notes: migrateNotes(item.notes)
+          }));
+          setSeries(migratedMock);
+        }
+
+        if (storedWishlist) {
+          const migrated = storedWishlist.map(item => ({
+            ...item,
+            notes: migrateNotes(item.notes),
+            rating: item.rating !== undefined ? item.rating : 0
+          }));
+          setWishlist(migrated);
+        } else {
+          setWishlist([]);
+        }
       }
-    } else {
-      setWishlist([]);
-    }
-    
-    setIsInitialized(true);
-  }, []); // Empty dependency array - run only on mount
+
+      setIsInitialized(true);
+    };
+
+    loadData();
+  }, []);
 
   // Save to LocalStorage whenever series changes (but not on initial load)
   useEffect(() => {
