@@ -42,22 +42,21 @@ const LandingPage = () => {
           rating: item.rating || 0
         }));
         setSeries(migratedData);
-        // Save migrated data
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedData));
       } catch (error) {
         console.error('Error loading data:', error);
-        setSeries(mockSeries.map(item => ({
+        const migratedMock = mockSeries.map(item => ({
           ...item,
           notes: migrateNotes(item.notes)
-        })));
+        }));
+        setSeries(migratedMock);
       }
     } else {
+      // No data in storage, use mock data
       const migratedMock = mockSeries.map(item => ({
         ...item,
         notes: migrateNotes(item.notes)
       }));
       setSeries(migratedMock);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedMock));
     }
 
     if (storedWishlist) {
@@ -69,28 +68,25 @@ const LandingPage = () => {
           rating: item.rating || 0
         }));
         setWishlist(migratedWishlist);
-        localStorage.setItem(WISHLIST_KEY, JSON.stringify(migratedWishlist));
       } catch (error) {
         console.error('Error loading wishlist:', error);
         setWishlist([]);
       }
+    } else {
+      setWishlist([]);
     }
   }, []);
 
   // Save to LocalStorage whenever series changes
   useEffect(() => {
-    if (series.length >= 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
-      console.log('✅ Archive saved:', series);
-    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
+    console.log('✅ Archive saved:', series.length, 'items');
   }, [series]);
 
   // Save wishlist to LocalStorage
   useEffect(() => {
-    if (wishlist.length >= 0) {
-      localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
-      console.log('✅ Wishlist saved:', wishlist);
-    }
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+    console.log('✅ Wishlist saved:', wishlist.length, 'items');
   }, [wishlist]);
 
   const handleAddSeries = (newSeries) => {
