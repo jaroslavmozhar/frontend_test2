@@ -190,6 +190,16 @@ const LandingPage = () => {
 
   return (
     <div className="crime-scene-bg">
+      {storageWarning && (
+        <div className="storage-warning">
+          <span className="warning-icon">⚠️</span>
+          <p>
+            <strong>УВАГА:</strong> LocalStorage недоступний (приватний режим браузера?). 
+            Дані не будуть збережені після закриття сторінки.
+          </p>
+        </div>
+      )}
+      
       <div className="investigators-header">
         <div className="investigators-container">
           <div className="investigators-glow"></div>
