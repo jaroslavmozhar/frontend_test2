@@ -15,18 +15,18 @@ const AudioPlayer = () => {
     {
       title: 'Noir Detective',
       artist: 'Mystery Theme',
-      // Free music from Pixabay
-      url: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_2c7ba86c6a.mp3?filename=detective-115492.mp3'
+      // Free music - alternative working source
+      url: 'https://assets.mixkit.co/music/preview/mixkit-detective-on-duty-28.mp3'
     },
     {
       title: 'Crime Scene',
       artist: 'Dark Investigation',
-      url: 'https://cdn.pixabay.com/download/audio/2022/05/13/audio_2f2c1a6d7a.mp3?filename=dark-mystery-trailer-126365.mp3'
+      url: 'https://assets.mixkit.co/music/preview/mixkit-mysterious-detective-79.mp3'
     },
     {
       title: 'Night Watch',
       artist: 'Noir Atmosphere',
-      url: 'https://cdn.pixabay.com/download/audio/2022/03/24/audio_c8dbf5116a.mp3?filename=mysterious-cinematic-trailer-135848.mp3'
+      url: 'https://assets.mixkit.co/music/preview/mixkit-night-detective-156.mp3'
     }
   ];
 
@@ -52,24 +52,33 @@ const AudioPlayer = () => {
   }, [volume]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log('✅ Audio playing');
-              setError(null);
-            })
-            .catch(e => {
-              console.error('❌ Play failed:', e);
-              setError('Не вдалося відтворити. Клікніть ще раз.');
-              setIsPlaying(false);
-            });
-        }
-      } else {
-        audioRef.current.pause();
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      // Reset audio to beginning if switching tracks
+      audio.currentTime = 0;
+      
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('✅ Audio playing');
+            setError(null);
+          })
+          .catch(e => {
+            console.error('❌ Play failed:', e);
+            // Don't show error on user interaction issues
+            if (e.name === 'NotAllowedError') {
+              setError('Клікніть Play для відтворення');
+            } else {
+              setError('Помилка треку. Спробуйте інший.');
+            }
+            setIsPlaying(false);
+          });
       }
+    } else {
+      audio.pause();
     }
   }, [isPlaying, currentTrackIndex]);
 
