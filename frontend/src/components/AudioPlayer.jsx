@@ -10,23 +10,23 @@ const AudioPlayer = () => {
   const [error, setError] = useState(null);
   const audioRef = useRef(null);
 
-  // Безкоштовні детективні треки з різних джерел
+  // Безкоштовні детективні треки - використовуємо alternative sources
   const tracks = [
     {
       title: 'Noir Detective',
       artist: 'Mystery Theme',
-      // Free music - alternative working source
-      url: 'https://assets.mixkit.co/music/preview/mixkit-detective-on-duty-28.mp3'
+      // Backup: FreePD or Internet Archive public domain
+      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Fig_Leaf_Rag.mp3'
     },
     {
       title: 'Crime Scene',
       artist: 'Dark Investigation',
-      url: 'https://assets.mixkit.co/music/preview/mixkit-mysterious-detective-79.mp3'
+      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kevin_MacLeod/Classical_Sampler/Kevin_MacLeod_-_Danse_Macabre.mp3'
     },
     {
       title: 'Night Watch',
       artist: 'Noir Atmosphere',
-      url: 'https://assets.mixkit.co/music/preview/mixkit-night-detective-156.mp3'
+      url: 'https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Volatile_Reaction.mp3'
     }
   ];
 
