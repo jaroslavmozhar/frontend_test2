@@ -8,10 +8,24 @@ import '../styles/crime-theme.css';
 const STORAGE_KEY = 'crime_series_archive';
 const WISHLIST_KEY = 'crime_series_wishlist';
 
+// Helper function to migrate old note format to new format
+const migrateNotes = (notes) => {
+  if (!notes) return [];
+  if (Array.isArray(notes)) return notes;
+  if (typeof notes === 'string' && notes.trim()) {
+    return [{
+      author: 'Maria',
+      text: notes,
+      timestamp: new Date().toISOString()
+    }];
+  }
+  return [];
+};
+
 const LandingPage = () => {
   const [series, setSeries] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const [activeTab, setActiveTab] = useState('archive'); // 'archive' or 'wishlist'
+  const [activeTab, setActiveTab] = useState('archive');
 
   // Load data from LocalStorage or use mock data
   useEffect(() => {
@@ -20,18 +34,42 @@ const LandingPage = () => {
     
     if (stored) {
       try {
-        setSeries(JSON.parse(stored));
+        const parsedData = JSON.parse(stored);
+        // Migrate old format to new format
+        const migratedData = parsedData.map(item => ({
+          ...item,
+          notes: migrateNotes(item.notes),
+          rating: item.rating || 0
+        }));
+        setSeries(migratedData);
+        // Save migrated data
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedData));
       } catch (error) {
         console.error('Error loading data:', error);
-        setSeries(mockSeries);
+        setSeries(mockSeries.map(item => ({
+          ...item,
+          notes: migrateNotes(item.notes)
+        })));
       }
     } else {
-      setSeries(mockSeries);
+      const migratedMock = mockSeries.map(item => ({
+        ...item,
+        notes: migrateNotes(item.notes)
+      }));
+      setSeries(migratedMock);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedMock));
     }
 
     if (storedWishlist) {
       try {
-        setWishlist(JSON.parse(storedWishlist));
+        const parsedWishlist = JSON.parse(storedWishlist);
+        const migratedWishlist = parsedWishlist.map(item => ({
+          ...item,
+          notes: migrateNotes(item.notes),
+          rating: item.rating || 0
+        }));
+        setWishlist(migratedWishlist);
+        localStorage.setItem(WISHLIST_KEY, JSON.stringify(migratedWishlist));
       } catch (error) {
         console.error('Error loading wishlist:', error);
         setWishlist([]);
@@ -41,8 +79,9 @@ const LandingPage = () => {
 
   // Save to LocalStorage whenever series changes
   useEffect(() => {
-    if (series.length > 0) {
+    if (series.length >= 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(series));
+      console.log('✅ Archive saved:', series);
     }
   }, [series]);
 
@@ -50,26 +89,39 @@ const LandingPage = () => {
   useEffect(() => {
     if (wishlist.length >= 0) {
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+      console.log('✅ Wishlist saved:', wishlist);
     }
   }, [wishlist]);
 
   const handleAddSeries = (newSeries) => {
+    const seriesWithNotes = {
+      ...newSeries,
+      notes: [],
+      rating: 0
+    };
+    
     if (activeTab === 'archive') {
-      setSeries([newSeries, ...series]);
+      const updated = [seriesWithNotes, ...series];
+      setSeries(updated);
     } else {
-      setWishlist([newSeries, ...wishlist]);
+      const updated = [seriesWithNotes, ...wishlist];
+      setWishlist(updated);
     }
   };
 
   const handleUpdateSeries = (updatedSeries) => {
+    console.log('📝 Updating series:', updatedSeries);
+    
     if (activeTab === 'archive') {
-      setSeries(series.map(s => 
+      const updated = series.map(s => 
         s.id === updatedSeries.id ? updatedSeries : s
-      ));
+      );
+      setSeries(updated);
     } else {
-      setWishlist(wishlist.map(s => 
+      const updated = wishlist.map(s => 
         s.id === updatedSeries.id ? updatedSeries : s
-      ));
+      );
+      setWishlist(updated);
     }
   };
 
