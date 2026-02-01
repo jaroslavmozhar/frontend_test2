@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 
 const SeriesCard = ({ series, onUpdate, onDelete }) => {
-  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isAddingNote, setIsAddingNote] = useState(false);
   const [localSeries, setLocalSeries] = useState(series);
-  const [tempNotes, setTempNotes] = useState(series.notes);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [selectedAuthor, setSelectedAuthor] = useState('Maria');
+
+  // Ensure notes is an array
+  const notes = Array.isArray(localSeries.notes) ? localSeries.notes : 
+                localSeries.notes ? [{ author: 'Maria', text: localSeries.notes, timestamp: new Date().toISOString() }] : [];
 
   const handleWatchedChange = () => {
     const updated = { ...localSeries, watched: !localSeries.watched };
@@ -17,37 +22,53 @@ const SeriesCard = ({ series, onUpdate, onDelete }) => {
     onUpdate(updated);
   };
 
-  const handleStartEditing = () => {
-    setTempNotes(localSeries.notes);
-    setIsEditingNotes(true);
-  };
-
-  const handleCancelEditing = () => {
-    setTempNotes(localSeries.notes);
-    setIsEditingNotes(false);
-  };
-
-  const handleSaveNotes = () => {
-    const updated = { ...localSeries, notes: tempNotes };
-    setLocalSeries(updated);
-    onUpdate(updated);
-    setIsEditingNotes(false);
-  };
-
-  const handleDeleteNotes = () => {
-    if (window.confirm('Видалити всі нотатки?')) {
-      const updated = { ...localSeries, notes: '' };
+  const handleAddNote = () => {
+    if (newNoteText.trim()) {
+      const newNote = {
+        author: selectedAuthor,
+        text: newNoteText.trim(),
+        timestamp: new Date().toISOString()
+      };
+      
+      const updatedNotes = [...notes, newNote];
+      const updated = { ...localSeries, notes: updatedNotes };
       setLocalSeries(updated);
       onUpdate(updated);
-      setTempNotes('');
-      setIsEditingNotes(false);
+      
+      setNewNoteText('');
+      setIsAddingNote(false);
     }
+  };
+
+  const handleDeleteNote = (index) => {
+    if (window.confirm('Видалити цю нотатку?')) {
+      const updatedNotes = notes.filter((_, i) => i !== index);
+      const updated = { ...localSeries, notes: updatedNotes };
+      setLocalSeries(updated);
+      onUpdate(updated);
+    }
+  };
+
+  const handleCancelNote = () => {
+    setNewNoteText('');
+    setIsAddingNote(false);
   };
 
   const handleDelete = () => {
     if (window.confirm(`Видалити досьє "${localSeries.title}"?`)) {
       onDelete(localSeries.id);
     }
+  };
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('uk-UA', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
@@ -93,67 +114,103 @@ const SeriesCard = ({ series, onUpdate, onDelete }) => {
         />
       </div>
 
-      {/* Notes section */}
+      {/* Notes section - Journal style */}
       <div className="notes-section">
         <div className="notes-header">
-          <label className="notes-label">Нотатки:</label>
-          {!isEditingNotes && (
+          <label className="notes-label">Журнал розслідування:</label>
+          {!isAddingNote && (
             <button 
-              className="edit-notes-btn"
-              onClick={handleStartEditing}
-              title="Редагувати нотатки"
+              className="add-note-btn"
+              onClick={() => setIsAddingNote(true)}
+              title="Додати нотатку"
             >
-              ✏️ Редагувати
+              ➕ Додати
             </button>
           )}
         </div>
 
-        {!isEditingNotes ? (
-          // Display mode
-          localSeries.notes ? (
-            <div className="notes-display">
-              <p className="notes-text">{localSeries.notes}</p>
+        {/* Display existing notes */}
+        {notes.length > 0 && (
+          <div className="notes-journal">
+            {notes.map((note, index) => (
+              <div key={index} className={`journal-entry ${note.author.toLowerCase()}`}>
+                <div className="journal-header">
+                  <span className="journal-author">{note.author}</span>
+                  <span className="journal-time">{formatDate(note.timestamp)}</span>
+                  <button 
+                    className="delete-note-btn"
+                    onClick={() => handleDeleteNote(index)}
+                    title="Видалити нотатку"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="journal-text">{note.text}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add new note form */}
+        {isAddingNote ? (
+          <div className="add-note-form">
+            <div className="author-selector">
+              <label className="author-label">Автор:</label>
+              <div className="author-options">
+                <label className={`author-option ${selectedAuthor === 'Maria' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="author"
+                    value="Maria"
+                    checked={selectedAuthor === 'Maria'}
+                    onChange={(e) => setSelectedAuthor(e.target.value)}
+                  />
+                  <span className="author-name maria">Maria</span>
+                </label>
+                <label className={`author-option ${selectedAuthor === 'Yaroslav' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="author"
+                    value="Yaroslav"
+                    checked={selectedAuthor === 'Yaroslav'}
+                    onChange={(e) => setSelectedAuthor(e.target.value)}
+                  />
+                  <span className="author-name yaroslav">Yaroslav</span>
+                </label>
+              </div>
             </div>
-          ) : (
-            <div className="notes-empty" onClick={handleStartEditing}>
-              <p>📝 Натисніть "Редагувати", щоб додати нотатки</p>
-            </div>
-          )
-        ) : (
-          // Edit mode
-          <>
+            
             <textarea
               className="notes-textarea"
-              placeholder="Додайте свої нотатки про розслідування..."
-              value={tempNotes}
-              onChange={(e) => setTempNotes(e.target.value)}
+              placeholder="Додайте свої спостереження..."
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
               autoFocus
-              aria-label="Нотатки про серіал"
+              aria-label="Текст нотатки"
             />
             
             <div className="notes-actions">
               <button 
                 className="notes-btn save-notes-btn"
-                onClick={handleSaveNotes}
+                onClick={handleAddNote}
+                disabled={!newNoteText.trim()}
               >
                 💾 Зберегти
               </button>
               <button 
                 className="notes-btn cancel-notes-btn"
-                onClick={handleCancelEditing}
+                onClick={handleCancelNote}
               >
                 ✖️ Скасувати
               </button>
-              {localSeries.notes && (
-                <button 
-                  className="notes-btn delete-notes-btn"
-                  onClick={handleDeleteNotes}
-                >
-                  🗑️ Видалити
-                </button>
-              )}
             </div>
-          </>
+          </div>
+        ) : (
+          !notes.length && (
+            <div className="notes-empty" onClick={() => setIsAddingNote(true)}>
+              <p>📝 Розслідування розпочато. Додайте першу нотатку.</p>
+            </div>
+          )
         )}
       </div>
     </div>
