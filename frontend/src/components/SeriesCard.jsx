@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SeriesCard = ({ series, onUpdate }) => {
+const SeriesCard = ({ series, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [localSeries, setLocalSeries] = useState(series);
 
@@ -26,9 +26,23 @@ const SeriesCard = ({ series, onUpdate }) => {
     setIsEditing(false);
   };
 
+  const handleDelete = () => {
+    if (window.confirm(`Видалити досьє "${localSeries.title}"?`)) {
+      onDelete(localSeries.id);
+    }
+  };
+
   return (
     <div className="case-file">
       <span className="dosie-label">ДОСЬЄ</span>
+      <button 
+        className="delete-case-btn" 
+        onClick={handleDelete}
+        aria-label="Видалити досьє"
+        title="Видалити досьє"
+      >
+        ✕
+      </button>
       <div className="case-file-header">
         <input
           type="checkbox"
