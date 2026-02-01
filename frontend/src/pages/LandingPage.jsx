@@ -274,6 +274,15 @@ const LandingPage = () => {
           </p>
         </div>
       )}
+
+      {useOfflineMode && (
+        <div className="offline-mode-banner">
+          <span className="offline-icon">📡</span>
+          <p>
+            <strong>ОФЛАЙН РЕЖИМ:</strong> Сервер недоступний. Дані зберігаються локально.
+          </p>
+        </div>
+      )}
       
       <div className="investigators-header">
         <div className="investigators-container">
