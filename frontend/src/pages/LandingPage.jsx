@@ -160,7 +160,7 @@ const LandingPage = () => {
     }
   }, [wishlist, isInitialized, useOfflineMode]);
 
-  const handleAddSeries = (newSeries) => {
+  const handleAddSeries = async (newSeries) => {
     const seriesWithNotes = {
       ...newSeries,
       notes: [],
@@ -168,35 +168,96 @@ const LandingPage = () => {
     };
     
     if (activeTab === 'archive') {
+      // Optimistic update
       const updated = [seriesWithNotes, ...series];
       setSeries(updated);
+      
+      // Save to API
+      if (!useOfflineMode) {
+        const result = await seriesAPI.createSeries(seriesWithNotes);
+        if (!result.success) {
+          console.warn('⚠️ Failed to save to API, saved locally only');
+        }
+      }
+      
+      // Save to localStorage as cache
+      safeLocalStorageSave(STORAGE_KEY, JSON.stringify(updated));
     } else {
       const updated = [seriesWithNotes, ...wishlist];
       setWishlist(updated);
+      
+      if (!useOfflineMode) {
+        const result = await seriesAPI.createWishlistItem(seriesWithNotes);
+        if (!result.success) {
+          console.warn('⚠️ Failed to save to API, saved locally only');
+        }
+      }
+      
+      safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(updated));
     }
   };
 
-  const handleUpdateSeries = (updatedSeries) => {
-    console.log('📝 Updating series:', updatedSeries);
+  const handleUpdateSeries = async (updatedSeries) => {
+    console.log('📝 Updating series:', updatedSeries.title);
     
     if (activeTab === 'archive') {
       const updated = series.map(s => 
         s.id === updatedSeries.id ? updatedSeries : s
       );
       setSeries(updated);
+      
+      // Save to API
+      if (!useOfflineMode) {
+        const result = await seriesAPI.updateSeries(updatedSeries.id, updatedSeries);
+        if (!result.success) {
+          console.warn('⚠️ Failed to update in API, saved locally only');
+        }
+      }
+      
+      safeLocalStorageSave(STORAGE_KEY, JSON.stringify(updated));
     } else {
       const updated = wishlist.map(s => 
         s.id === updatedSeries.id ? updatedSeries : s
       );
       setWishlist(updated);
+      
+      if (!useOfflineMode) {
+        const result = await seriesAPI.updateWishlistItem(updatedSeries.id, updatedSeries);
+        if (!result.success) {
+          console.warn('⚠️ Failed to update in API, saved locally only');
+        }
+      }
+      
+      safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(updated));
     }
   };
 
-  const handleDeleteSeries = (id) => {
+  const handleDeleteSeries = async (id) => {
     if (activeTab === 'archive') {
-      setSeries(series.filter(s => s.id !== id));
+      const updated = series.filter(s => s.id !== id);
+      setSeries(updated);
+      
+      // Delete from API
+      if (!useOfflineMode) {
+        const result = await seriesAPI.deleteSeries(id);
+        if (!result.success) {
+          console.warn('⚠️ Failed to delete from API, deleted locally only');
+        }
+      }
+      
+      safeLocalStorageSave(STORAGE_KEY, JSON.stringify(updated));
     } else {
-      setWishlist(wishlist.filter(s => s.id !== id));
+      const updated = wishlist.filter(s => s.id !== id);
+      setWishlist(updated);
+      
+      if (!useOfflineMode) {
+        const result = await seriesAPI.deleteWishlistItem(id);
+        if (!result.success) {
+          console.warn('⚠️ Failed to delete from API, deleted locally only');
+        }
+      }
+      
+      safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(updated));
     }
   };
 
