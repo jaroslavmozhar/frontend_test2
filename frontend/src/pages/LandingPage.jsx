@@ -146,19 +146,19 @@ const LandingPage = () => {
     loadData();
   }, []);
 
-  // Save to LocalStorage whenever series changes (but not on initial load)
+  // Save to API and LocalStorage whenever data changes
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && !useOfflineMode) {
+      // Save to localStorage as cache
       safeLocalStorageSave(STORAGE_KEY, JSON.stringify(series));
     }
-  }, [series, isInitialized]);
+  }, [series, isInitialized, useOfflineMode]);
 
-  // Save wishlist to LocalStorage (but not on initial load)
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && !useOfflineMode) {
       safeLocalStorageSave(WISHLIST_KEY, JSON.stringify(wishlist));
     }
-  }, [wishlist, isInitialized]);
+  }, [wishlist, isInitialized, useOfflineMode]);
 
   const handleAddSeries = (newSeries) => {
     const seriesWithNotes = {
