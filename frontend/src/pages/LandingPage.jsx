@@ -3,6 +3,7 @@ import SeriesCard from '../components/SeriesCard';
 import AddSeriesForm from '../components/AddSeriesForm';
 import DetectiveStrings from '../components/DetectiveStrings';
 import { mockSeries } from '../data/mock';
+import seriesAPI from '../services/api';
 import '../styles/crime-theme.css';
 
 const STORAGE_KEY = 'crime_series_archive';
