@@ -101,6 +101,39 @@
   letter-spacing: 1px;
 }
 
+/* Offline Mode Banner */
+.offline-mode-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff8c00 0%, #ffa500 100%);
+  color: #000000;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: 'KodeMono', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.offline-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.offline-mode-banner p {
+  margin: 0;
+}
+
+.offline-mode-banner strong {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
 /* Investigation Header */
 .investigators-header {
   text-align: center;
