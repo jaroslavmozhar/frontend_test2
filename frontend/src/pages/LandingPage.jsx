@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SeriesCard from '../components/SeriesCard';
 import AddSeriesForm from '../components/AddSeriesForm';
+import DetectiveStrings from '../components/DetectiveStrings';
 import { mockSeries } from '../data/mock';
 import '../styles/crime-theme.css';
 
@@ -49,7 +50,9 @@ const LandingPage = () => {
         </h1>
       </div>
 
-      <div className="detective-board">
+      <div className="detective-board" style={{ position: 'relative' }}>
+        <DetectiveStrings />
+        
         <h2 className="archive-title">
           Архів Кримінальних Серіалів
         </h2>
