@@ -608,7 +608,7 @@
   box-shadow: 0 0 15px var(--crime-red-glow);
 }
 
-/* Notes Section */
+/* Notes Section - Journal Style */
 .notes-section {
   margin-top: 20px;
 }
@@ -628,10 +628,10 @@
   letter-spacing: 1px;
 }
 
-.edit-notes-btn {
-  background: transparent;
-  border: 1px solid var(--crime-tape-yellow);
-  color: var(--crime-tape-yellow);
+.add-note-btn {
+  background: var(--crime-tape-yellow);
+  border: none;
+  color: var(--crime-black);
   padding: 6px 12px;
   font-family: 'KodeMono', monospace;
   font-size: 11px;
@@ -644,101 +644,164 @@
   gap: 4px;
 }
 
-.edit-notes-btn:hover {
-  background: var(--crime-tape-yellow);
-  color: var(--crime-black);
+.add-note-btn:hover {
+  background: transparent;
+  color: var(--crime-tape-yellow);
+  border: 1px solid var(--crime-tape-yellow);
   box-shadow: 0 0 10px var(--crime-yellow-glow);
 }
 
-/* Notes Display Mode - HIGH CONTRAST */
-.notes-display {
+/* Journal Entries */
+.notes-journal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.journal-entry {
   background: rgba(245, 230, 211, 0.95);
-  padding: 16px;
-  border: 2px solid var(--crime-tape-yellow);
-  min-height: 80px;
+  padding: 12px;
+  border-left: 4px solid;
   position: relative;
-  box-shadow: 
-    inset 0 0 20px rgba(0, 0, 0, 0.2),
-    0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.notes-display::before {
-  content: '📄';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 20px;
-  opacity: 0.3;
+.journal-entry.maria {
+  border-left-color: #ff6b9d;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(245, 230, 211, 0.95) 20%);
 }
 
-.notes-text {
+.journal-entry.yaroslav {
+  border-left-color: #4a9eff;
+  background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(245, 230, 211, 0.95) 20%);
+}
+
+.journal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
+}
+
+.journal-author {
+  font-family: 'KodeMono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.journal-entry.maria .journal-author {
+  color: #d91b5c;
+}
+
+.journal-entry.yaroslav .journal-author {
+  color: #1e5fa8;
+}
+
+.journal-time {
   font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: #666;
+}
+
+.delete-note-btn {
+  background: transparent;
+  border: none;
+  color: var(--crime-string-red);
   font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: all 0.2s ease;
+  opacity: 0.5;
+}
+
+.delete-note-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.journal-text {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
   line-height: 1.6;
   color: #1a1a1a;
   margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-weight: 500;
 }
 
-/* Empty Notes State */
-.notes-empty {
-  background: rgba(26, 26, 26, 0.5);
-  padding: 20px;
-  border: 2px dashed var(--crime-gray-text);
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 60px;
+/* Add Note Form */
+.add-note-form {
+  background: rgba(26, 26, 26, 0.3);
+  padding: 16px;
+  border: 2px solid var(--crime-tape-yellow);
+  margin-top: 12px;
+}
+
+.author-selector {
+  margin-bottom: 12px;
+}
+
+.author-label {
+  font-family: 'KodeMono', monospace;
+  font-size: 11px;
+  color: var(--crime-tape-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.author-options {
+  display: flex;
+  gap: 12px;
+}
+
+.author-option {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.notes-empty:hover {
-  border-color: var(--crime-tape-yellow);
-  background: rgba(255, 217, 0, 0.05);
-}
-
-.notes-empty p {
-  font-family: 'KodeMono', monospace;
-  font-size: 13px;
-  color: var(--crime-gray-text);
-  margin: 0;
-  font-style: italic;
-}
-
-/* Notes Edit Mode */
-.notes-textarea {
-  width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  background: #f5e6d3;
-  border: 2px solid var(--crime-tape-yellow);
-  border-radius: 0;
-  color: #1a1a1a;
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.6;
-  resize: vertical;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  cursor: pointer;
   transition: all 0.3s ease;
-  box-sizing: border-box;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.notes-textarea:focus {
-  outline: none;
-  border-color: var(--crime-evidence-red);
-  box-shadow: 
-    0 0 15px var(--crime-yellow-glow),
-    inset 0 0 10px rgba(0, 0, 0, 0.1);
+.author-option input[type="radio"] {
+  display: none;
 }
 
-.notes-textarea::placeholder {
-  color: #666666;
-  font-style: italic;
+.author-option.selected {
+  border-color: var(--crime-tape-yellow);
+  background: rgba(255, 217, 0, 0.1);
+}
+
+.author-name {
+  font-family: 'KodeMono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.author-name.maria {
+  color: #ff6b9d;
+}
+
+.author-name.yaroslav {
+  color: #4a9eff;
+}
+
+.author-option:hover {
+  border-color: var(--crime-gray-text);
 }
 
 /* Notes Action Buttons */
