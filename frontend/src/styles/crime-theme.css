@@ -804,7 +804,66 @@
   border-color: var(--crime-gray-text);
 }
 
-/* Notes Action Buttons */
+/* Empty Notes State */
+.notes-empty {
+  background: rgba(26, 26, 26, 0.5);
+  padding: 20px;
+  border: 2px dashed var(--crime-gray-text);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.notes-empty:hover {
+  border-color: var(--crime-tape-yellow);
+  background: rgba(255, 217, 0, 0.05);
+}
+
+.notes-empty p {
+  font-family: 'KodeMono', monospace;
+  font-size: 13px;
+  color: var(--crime-gray-text);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Notes textarea in add form */
+.add-note-form .notes-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: #f5e6d3;
+  border: 2px solid var(--crime-tape-yellow);
+  border-radius: 0;
+  color: #1a1a1a;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+}
+
+.add-note-form .notes-textarea:focus {
+  outline: none;
+  border-color: var(--crime-evidence-red);
+  box-shadow: 
+    0 0 15px var(--crime-yellow-glow),
+    inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-note-form .notes-textarea::placeholder {
+  color: #666666;
+  font-style: italic;
+}
 .notes-actions {
   display: flex;
   gap: 10px;
