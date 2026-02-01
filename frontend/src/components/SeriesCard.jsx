@@ -28,6 +28,7 @@ const SeriesCard = ({ series, onUpdate }) => {
 
   return (
     <div className="case-file">
+      <span className="dosie-label">ДОСЬЄ</span>
       <div className="case-file-header">
         <input
           type="checkbox"
