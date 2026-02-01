@@ -946,43 +946,186 @@
 /* Responsive */
 @media (max-width: 768px) {
   .archive-title {
-    font-size: 32px;
+    font-size: 28px;
+    line-height: 1.3;
+    margin: 30px 0 20px;
+    padding: 0 10px;
+  }
+  
+  .archive-title::before,
+  .archive-title::after {
+    display: none;
   }
   
   .investigators-names {
-    font-size: 28px;
-    gap: 12px;
+    font-size: 24px;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   
   .investigators-separator {
-    font-size: 22px;
+    font-size: 20px;
   }
   
   .investigators-container {
-    padding: 20px 30px;
+    padding: 20px 20px;
+    margin: 0 10px;
+  }
+  
+  .investigators-container::before,
+  .investigators-container::after {
+    font-size: 30px;
   }
   
   .investigators-subtitle {
-    font-size: 10px;
+    font-size: 9px;
+    letter-spacing: 2px;
+  }
+  
+  .investigators-label {
+    font-size: 13px;
+    letter-spacing: 3px;
   }
   
   .evidence-tabs {
     flex-direction: column;
-    gap: 15px;
-    padding: 0 20px;
+    gap: 12px;
+    padding: 0 15px;
+    margin: 30px auto 20px;
   }
   
   .evidence-tab {
-    font-size: 12px;
-    padding: 15px 20px;
+    font-size: 11px;
+    padding: 12px 16px;
+  }
+  
+  .tab-icon {
+    font-size: 16px;
+  }
+  
+  .tab-count {
+    font-size: 10px;
+    padding: 2px 6px;
   }
   
   .series-grid {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 25px;
+    padding: 0 15px 40px;
   }
   
   .detective-board {
-    padding: 80px 20px 40px;
+    padding: 60px 15px 30px;
+  }
+  
+  /* Form adjustments for mobile */
+  .add-series-container {
+    padding: 20px 15px;
+    margin: 0 15px 40px;
+  }
+  
+  .crime-input {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+  
+  .crime-btn {
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+  
+  /* Case file mobile */
+  .case-file {
+    padding: 20px 15px;
+  }
+  
+  .case-title {
+    font-size: 18px;
+  }
+  
+  .delete-case-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  /* Rating mobile */
+  .rating-section {
+    padding: 15px;
+    margin: 20px 0;
+  }
+  
+  .rating-display {
+    font-size: 24px;
+  }
+  
+  /* Notes mobile */
+  .notes-journal {
+    max-height: 300px;
+  }
+  
+  .journal-entry {
+    padding: 10px;
+  }
+  
+  .journal-author {
+    font-size: 11px;
+  }
+  
+  .journal-time {
+    font-size: 9px;
+  }
+  
+  .journal-text {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  
+  .notes-textarea {
+    min-height: 80px;
+    font-size: 13px;
+  }
+  
+  .notes-btn {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+  
+  .author-option {
+    padding: 8px;
+  }
+  
+  .author-name {
+    font-size: 12px;
+  }
+  
+  /* Detective strings - hide on mobile for better performance */
+  .detective-strings-overlay {
+    display: none;
+  }
+}
+
+/* Extra small mobile */
+@media (max-width: 375px) {
+  .archive-title {
+    font-size: 24px;
+  }
+  
+  .investigators-names {
+    font-size: 20px;
+    gap: 8px;
+  }
+  
+  .case-title {
+    font-size: 16px;
+  }
+  
+  .series-grid {
+    padding: 0 10px 30px;
+  }
+  
+  .detective-board {
+    padding: 50px 10px 25px;
   }
 }
