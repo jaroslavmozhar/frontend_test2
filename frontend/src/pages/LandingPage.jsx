@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SeriesCard from '../components/SeriesCard';
 import AddSeriesForm from '../components/AddSeriesForm';
 import DetectiveStrings from '../components/DetectiveStrings';
+import AudioPlayer from '../components/AudioPlayer';
 import { mockSeries } from '../data/mock';
 import seriesAPI from '../services/api';
 import '../styles/crime-theme.css';
@@ -350,6 +351,9 @@ const LandingPage = () => {
           </div>
         )}
       </div>
+
+      {/* Audio Player */}
+      <AudioPlayer />
     </div>
   );
 };
