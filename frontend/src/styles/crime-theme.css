@@ -669,8 +669,32 @@
     font-size: 32px;
   }
   
-  .investigators-title {
-    font-size: 18px;
+  .investigators-names {
+    font-size: 28px;
+    gap: 12px;
+  }
+  
+  .investigators-separator {
+    font-size: 22px;
+  }
+  
+  .investigators-container {
+    padding: 20px 30px;
+  }
+  
+  .investigators-subtitle {
+    font-size: 10px;
+  }
+  
+  .evidence-tabs {
+    flex-direction: column;
+    gap: 15px;
+    padding: 0 20px;
+  }
+  
+  .evidence-tab {
+    font-size: 12px;
+    padding: 15px 20px;
   }
   
   .series-grid {
